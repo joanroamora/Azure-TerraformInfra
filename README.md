@@ -6,7 +6,7 @@ This project focuses on the deployment of a scalable and secure multi-tier infra
 
 ## Infrastructure Components
 
-![alt text](image.png)
+![alt text](./images/image.png)
 
 ### 1. Virtual Network (VNet) and Subnets
 
@@ -114,3 +114,46 @@ Terraform provides automated and consistent infrastructure deployment, reducing 
 This project provides a robust foundation for deploying, managing, and scaling a secure web application in Azure, adhering to industry best practices for cloud infrastructure.
 
 For further details on usage and customization, please refer to the Terraform files provided in this repository.
+
+
+### Cost estimation:
+This proposal outlines the estimated costs for a web service hosted on Microsoft Azure, based on pricing information obtained directly from Azure's official website. The prices are calculated for one month of usage, and they could be reduced by implementing cost-saving strategies. Two effective methods for obtaining discounts include purchasing Reserved Instances, which offer significant savings when committing to one- or three-year terms, and leveraging Azure's Spot Virtual Machines, which provide lower prices for unused capacity, ideal for workloads that can tolerate interruptions.
+
+![alt text](./images/image-1.png)
+
+
+### Deployment Screenshots:
+I will attach screenshots of the resources deployed on Azure to demonstrate how the code successfully executes tasks in the cloud. These images will provide visual confirmation of the deployment and operation of the web service.
+
+## Virtual Machines: 
+![alt text](./images/image-3.png)
+
+
+## VPC and Subnets: 
+![alt text](./images/image-4.png)
+
+
+## Load Balancers: 
+![alt text](./images/image5.png)
+
+
+## Storage Account: 
+![alt text](./images/image6.png)
+
+## Security Groups: 
+# DataBase Security Group
+![alt text](./images/image7.png)
+
+# FrontEnd Security Group
+![alt text](./images/image8.png)
+
+# BackEnd Security Group
+![alt text](./images/image9.png)
+
+
+## SQL Server
+![alt text](./images/image10.png)
+
+
+## SQL Database
+![alt text](./images/image11.png)
