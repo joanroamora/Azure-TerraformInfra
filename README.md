@@ -4,7 +4,7 @@
 
 This project focuses on the deployment of a scalable and secure multi-tier infrastructure on Microsoft Azure, designed to support a web application. The infrastructure is provisioned using Terraform, ensuring consistent, reproducible, and maintainable deployments.
 
-## Infrastructure Components
+## Infrastructure Components Diagram
 
 ![alt text](./images/image.jpg)
 
