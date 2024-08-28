@@ -185,3 +185,17 @@ resource "azurerm_lb" "secondary_backend_lb" {
     public_ip_address_id = azurerm_public_ip.secondary_lb.id
   }
 }
+
+resource "azurerm_virtual_network" "secondary_vnet_db" {
+  name                = "secondary-db-vnet"
+  address_space       = ["10.1.0.0/16"]
+  location            = var.secondary_location
+  resource_group_name = var.resourceGroup
+}
+
+resource "azurerm_subnet" "secondary_private_db" {
+  name                 = "secondary-private-db-subnet"
+  resource_group_name  = var.resourceGroup
+  virtual_network_name = azurerm_virtual_network.secondary_vnet_db.name
+  address_prefixes     = ["10.1.2.0/24"]
+}

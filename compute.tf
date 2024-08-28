@@ -131,24 +131,24 @@ resource "azurerm_mssql_server" "sqlserver" {
 }
 
 resource "azurerm_mssql_database" "sqldatabase" {
-  name                 = var.sql_database_name
-  server_id            = azurerm_mssql_server.sqlserver.id
-  collation            = "SQL_Latin1_General_CP1_CI_AS"
-  license_type         = "LicenseIncluded"
-  max_size_gb          = 2
-  read_scale           = false
-  sku_name             = "Basic"
-  enclave_type         = "VBS"
-  
+  name           = var.sql_database_name
+  server_id      = azurerm_mssql_server.sqlserver.id
+  collation      = "SQL_Latin1_General_CP1_CI_AS"
+  license_type   = "LicenseIncluded"
+  max_size_gb    = 4
+  read_scale     = true
+  sku_name       = "S0"
+  zone_redundant = true  # Activa la redundancia de zona
+  enclave_type   = "VBS"
+
   tags = {
     environment = "production"
   }
-  
+
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 }
-
 
 #SECOND AVAILABILITY REGION
 resource "azurerm_virtual_machine" "secondary_frontend" {
@@ -268,4 +268,38 @@ resource "azurerm_virtual_machine" "secondary_backend" {
   depends_on = [
     azurerm_network_interface.secondary_backend
   ]
+}
+
+resource "azurerm_mssql_server" "secondary_sqlserver" {
+  name                         = "${var.sql_server_name}-secondary"
+  resource_group_name          = var.resourceGroup
+  location                     = var.secondary_location
+  version                      = "12.0"
+  administrator_login          = var.sql_admin_username
+  administrator_login_password = var.sql_admin_password
+
+  depends_on = [
+    azurerm_network_security_group.sql_sg,
+    azurerm_subnet.secondary_private_db
+  ]
+}
+
+resource "azurerm_mssql_database" "secondary_sqldatabase" {
+  name           = "${var.sql_database_name}-secondary"
+  server_id      = azurerm_mssql_server.secondary_sqlserver.id
+  collation      = "SQL_Latin1_General_CP1_CI_AS"
+  license_type   = "LicenseIncluded"
+  max_size_gb    = 4
+  read_scale     = true
+  sku_name       = "S0"
+  zone_redundant = true  # Activa la redundancia de zona
+  enclave_type   = "VBS"
+
+  tags = {
+    environment = "production"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
