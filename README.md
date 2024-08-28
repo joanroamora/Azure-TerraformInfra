@@ -6,6 +6,8 @@ This project focuses on the deployment of a scalable and secure multi-tier infra
 
 ## Infrastructure Components
 
+![alt text](image.png)
+
 ### 1. Virtual Network (VNet) and Subnets
 
 - **VNet**: A Virtual Network named `main-vpc` with an address space of `10.0.0.0/16`.
