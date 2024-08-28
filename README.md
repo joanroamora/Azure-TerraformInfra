@@ -56,6 +56,34 @@ This project focuses on the deployment of a scalable and secure multi-tier infra
   - Managed using an Azure Storage Account to enable collaborative infrastructure management.
   - The state is stored in a storage container named `tfstate` in the `terrstorageacc` Storage Account within the `Terraform Resource Group`.
 
+
+### 7. Multi-Region Architecture
+
+- **Primary Region**: The main infrastructure is deployed in the `Central US` region. This includes the primary Virtual Network (`main-vpc`), subnets, and compute resources (frontend, backend, and database).
+- **Secondary Region**: A replica of the critical components (backend, database) is deployed in the `North Central US` region. This region serves as a failover location in case of a catastrophic failure in the primary region.
+
+### 8. High Availability (HA)
+
+- **Availability Zones**: Within each region, critical resources are distributed across multiple Availability Zones. This ensures that if one zone experiences a failure, the resources in other zones remain unaffected.
+  - **Frontend**: VMs are deployed in multiple zones within the region.
+  - **Backend**: Similarly, backend VMs are distributed across different zones.
+  - **SQL Database**: The SQL database is configured with `zone_redundant = true`, ensuring it is replicated across multiple zones within the same region.
+
+### 9. Load Balancing and Auto-Scaling
+
+- **Public Load Balancer**: The frontend VMs are behind a public Azure Load Balancer, which distributes incoming traffic across the VMs. The Load Balancer is configured to support multiple Availability Zones, enhancing the overall availability.
+- **Internal Load Balancer**: Backend VMs are behind an internal Azure Load Balancer, ensuring load distribution for internal traffic within the VNet.
+- **Auto-Scaling**: Auto-scaling is configured for both frontend and backend tiers. Based on CPU utilization, additional VMs are automatically spun up to handle increased load, and similarly, they are scaled down when the load decreases.
+
+### 10. Failover and Disaster Recovery
+
+In the event of a failure in the primary region:
+
+- **Traffic Manager**: Azure Traffic Manager or Azure Front Door can be configured to route traffic to the secondary region automatically. This ensures that the application remains available even if the primary region becomes unavailable.
+- **Database Replication**: The SQL Server in the secondary region is set up as a replica of the primary database using Azure SQL Geo-Replication. This ensures data consistency and availability across regions.
+
+
+
 ## Getting Started
 
 ### Prerequisites
