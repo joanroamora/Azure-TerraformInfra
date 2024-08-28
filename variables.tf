@@ -140,3 +140,10 @@ variable "sql_security_group_name" {
   type        = string
   default     = "sql-sg"
 }
+
+#SECOND AVAILABILITY REGION
+
+variable "secondary_location" {
+  description = "The secondary Azure region for redundancy."
+  type        = string
+}

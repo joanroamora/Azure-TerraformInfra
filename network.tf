@@ -131,3 +131,57 @@ resource "azurerm_subnet_network_security_group_association" "private2_sg_assoc"
   subnet_id                 = azurerm_subnet.private2.id
   network_security_group_id = azurerm_network_security_group.sql_sg.id
 }
+
+#SECOND AVAILABILITY REGION
+resource "azurerm_virtual_network" "secondary_vnet" {
+  name                = "secondary-backend-vnet"
+  address_space       = ["10.1.0.0/16"]
+  location            = var.secondary_location
+  resource_group_name = var.resourceGroup
+}
+
+resource "azurerm_subnet" "secondary_private" {
+  name                 = "secondary-private-subnet"
+  resource_group_name  = var.resourceGroup
+  virtual_network_name = azurerm_virtual_network.secondary_vnet.name
+  address_prefixes     = ["10.1.1.0/24"]
+}
+
+resource "azurerm_subnet" "secondary_public" {
+  name                 = "secondary-public-subnet"
+  resource_group_name  = var.resourceGroup
+  virtual_network_name = azurerm_virtual_network.secondary_vnet.name
+  address_prefixes     = ["10.1.0.0/24"]
+}
+
+resource "azurerm_lb" "secondary_frontend_lb" {
+  name                = "secondary-frontend-lb"
+  location            = var.secondary_location
+  resource_group_name = var.resourceGroup
+  sku                 = "Standard"
+
+  frontend_ip_configuration {
+    name                 = "secondary-frontend-config"
+    public_ip_address_id = azurerm_public_ip.secondary_lb.id
+  }
+}
+
+resource "azurerm_public_ip" "secondary_lb" {
+  name                = "secondary-frontend-pip"
+  location            = var.secondary_location
+  resource_group_name = var.resourceGroup
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+resource "azurerm_lb" "secondary_backend_lb" {
+  name                = "secondary-backend-lb"
+  location            = var.secondary_location
+  resource_group_name = var.resourceGroup
+  sku                 = "Standard"
+
+  frontend_ip_configuration {
+    name                 = "secondary-backend-config"
+    public_ip_address_id = azurerm_public_ip.secondary_lb.id
+  }
+}

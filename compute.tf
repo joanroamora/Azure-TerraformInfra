@@ -23,7 +23,8 @@ resource "azurerm_virtual_machine" "frontend" {
   location            = var.location
   resource_group_name = var.resourceGroup
   network_interface_ids = [azurerm_network_interface.frontend[count.index].id]
-  vm_size             = var.vm_size
+  vm_size             = var.vm_size 
+  zones = ["${(count.index % 3 + 1)}"]
 
   os_profile {
     computer_name  = "frontend-vm-${count.index}"
@@ -57,7 +58,8 @@ resource "azurerm_virtual_machine" "frontend" {
 }
 
 resource "azurerm_network_interface" "backend" {
-  name                = "backend-nic"
+  count               = var.vm_count
+  name                = "backend-nic-${count.index}"
   location            = var.location
   resource_group_name = var.resourceGroup
 
@@ -73,17 +75,20 @@ resource "azurerm_network_interface" "backend" {
   ]
 }
 
+
 resource "azurerm_virtual_machine" "backend" {
-  name                = "backend-vm"
+  count               = var.vm_count
+  name                = "backend-vm-${count.index}"
   location            = var.location
   resource_group_name = var.resourceGroup
-  network_interface_ids = [azurerm_network_interface.backend.id]
-  vm_size             = var.backend_vm_size
+  network_interface_ids = [azurerm_network_interface.backend[count.index].id]  # Acceso por índice
+  vm_size             = var.vm_size 
+  zones               = ["${(count.index % 3 + 1)}"]  # Distribuir entre las zonas 1, 2, y 3
 
   os_profile {
-    computer_name  = "backend-vm"
-    admin_username = var.backend_admin_username
-    admin_password = var.backend_admin_password
+    computer_name  = "backend-vm-${count.index}"
+    admin_username = var.admin_username
+    admin_password = var.admin_password
   }
 
   os_profile_windows_config {}
@@ -96,7 +101,7 @@ resource "azurerm_virtual_machine" "backend" {
   }
 
   storage_os_disk {
-    name              = "backend-osdisk"
+    name              = "backend-osdisk-${count.index}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
@@ -142,4 +147,125 @@ resource "azurerm_mssql_database" "sqldatabase" {
   lifecycle {
     prevent_destroy = false
   }
+}
+
+
+#SECOND AVAILABILITY REGION
+resource "azurerm_virtual_machine" "secondary_frontend" {
+  count               = var.vm_count
+  name                = "secondary-frontend-vm-${count.index}"
+  location            = var.secondary_location
+  resource_group_name = var.resourceGroup
+  network_interface_ids = [azurerm_network_interface.secondary_frontend[count.index].id]
+  vm_size             = var.vm_size
+  zones               = ["${count.index % 3 + 1}"]  # Distribuir entre las zonas 1, 2 y 3 en la región secundaria
+
+  os_profile {
+    computer_name  = "frontend-vm-${count.index}"
+    admin_username = var.admin_username
+    admin_password = var.admin_password
+  }
+
+  os_profile_windows_config {}
+
+  storage_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2019-Datacenter"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "frontend-osdisk-${count.index}"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+  }
+
+  tags = {
+    environment = "frontend"
+  }
+
+  depends_on = [
+    azurerm_network_interface.frontend
+  ]
+}
+
+resource "azurerm_network_interface" "secondary_frontend" {
+  count               = var.vm_count
+  name                = "secondary-frontend-nic-${count.index}"
+  location            = var.secondary_location
+  resource_group_name = var.resourceGroup
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.secondary_public.id
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  depends_on = [
+    azurerm_lb.secondary_frontend_lb,
+    azurerm_subnet.secondary_public,
+    azurerm_network_security_group.frontend_sg  # Si usas el mismo SG o uno específico para la región secundaria
+  ]
+}
+
+resource "azurerm_network_interface" "secondary_backend" {
+  count               = var.vm_count
+  name                = "secondary-backend-nic-${count.index}"
+  location            = var.secondary_location
+  resource_group_name = var.resourceGroup
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.secondary_private.id
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  depends_on = [
+    azurerm_lb.secondary_backend_lb,
+    azurerm_subnet.secondary_private,  
+    azurerm_network_security_group.backend_sg
+  ]
+}
+
+
+resource "azurerm_virtual_machine" "secondary_backend" {
+  count               = var.vm_count
+  name                = "secondary-backend-vm-${count.index}"
+  location            = var.secondary_location
+  resource_group_name = var.resourceGroup
+  network_interface_ids = [azurerm_network_interface.secondary_backend[count.index].id]
+  vm_size             = var.vm_size 
+  zones = ["${(count.index % 3 + 1)}"]  # Distribuir entre las zonas 1, 2, y 3 en la región secundaria
+
+  os_profile {
+    computer_name  = "secondary-backend-vm-${count.index}"
+    admin_username = var.admin_username
+    admin_password = var.admin_password
+  }
+
+  os_profile_windows_config {}
+
+  storage_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2019-Datacenter"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "secondary-backend-osdisk-${count.index}"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+  }
+
+  tags = {
+    environment = "backend"
+  }
+
+  depends_on = [
+    azurerm_network_interface.secondary_backend
+  ]
 }
