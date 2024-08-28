@@ -126,11 +126,11 @@ This proposal outlines the estimated costs for a web service hosted on Microsoft
 I will attach screenshots of the resources deployed on Azure to demonstrate how the code successfully executes tasks in the cloud. These images will provide visual confirmation of the deployment and operation of the web service.
 
 ## Virtual Machines: 
-![alt text](./images/image-3.png)
+![alt text](./images/image3.png)
 
 
 ## VPC and Subnets: 
-![alt text](./images/image-4.png)
+![alt text](./images/image4.png)
 
 
 ## Load Balancers: 
