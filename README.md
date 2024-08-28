@@ -4,6 +4,25 @@
 
 This project focuses on the deployment of a scalable and secure multi-tier infrastructure on Microsoft Azure, designed to support a web application. The infrastructure is provisioned using Terraform, ensuring consistent, reproducible, and maintainable deployments.
 
+In addition to the core infrastructure setup, this project incorporates advanced high availability and multi-region strategies to enhance resilience and performance.
+
+## High Availability (HA):
+
+Frontend Tier: The frontend infrastructure uses Azure Virtual Machines deployed across multiple Availability Zones (AZs) within a single region. This setup ensures that the application remains operational even if an entire AZ experiences a failure. Auto-scaling is configured to dynamically adjust the number of instances based on CPU utilization, ensuring optimal performance and cost efficiency.
+
+Backend Tier: The backend infrastructure is similarly distributed across multiple AZs, with a focus on high availability and load balancing. Virtual Machines are created in a similar multi-AZ configuration, and Azure Load Balancer is used to distribute traffic across instances, providing redundancy and failover capabilities.
+
+## Multi-Region Deployment:
+
+Frontend Deployment: To further enhance availability, the frontend is deployed in multiple regions. This strategy allows the application to withstand regional outages and provides a better user experience by reducing latency for users in different geographical locations.
+
+Backend Deployment: The backend services are also distributed across multiple regions. This multi-region approach not only improves fault tolerance but also ensures that backend services can continue operating if one region encounters issues.
+
+## Subnet Configuration for Databases:
+
+The database infrastructure is placed in a dedicated subnet, isolated from frontend and backend traffic. High availability and disaster recovery strategies are applied at the database level, including geo-replication to keep data synchronized across regions and automated backups to safeguard against data loss.
+By leveraging these advanced configurations, the project ensures a robust and resilient infrastructure capable of handling both expected and unexpected failures while maintaining optimal performance across diverse geographic locations.
+
 ## Infrastructure Components Diagram
 
 ![alt text](./images/image.jpg)
