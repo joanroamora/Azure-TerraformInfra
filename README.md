@@ -6,7 +6,7 @@ This project focuses on the deployment of a scalable and secure multi-tier infra
 
 ## Infrastructure Components
 
-![alt text](./images/image.png)
+![alt text](./images/image.jpg)
 
 ### 1. Virtual Network (VNet) and Subnets
 
